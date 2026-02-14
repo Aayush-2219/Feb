@@ -1,0 +1,157 @@
+.glass {
+  height: 70vh;
+  width: 70vw;
+}
+body{
+  overflow: hidden;
+}
+/* safer sizing so padding doesn't add to viewport height */
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* moved spacing into the .glass element to avoid scroll */
+  background: linear-gradient(to bottom right, rgb(213, 141, 202), rgb(213, 92, 92));
+  background-attachment: fixed;
+  font-family: Arial, sans-serif;
+}
+
+/* Centering helpers */
+.center-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.center {
+  margin: 3rem auto;
+  max-width: 420px;
+  width: calc(100% - 2rem);
+}
+
+.glass {
+  position: relative;
+  z-index: 12; /* ensure the glass sits above floating hearts so they blur behind it */
+  isolation: isolate; /* create a new stacking context for predictable layering */
+  overflow: auto; /* allow inner scrolling if content grows */
+  /* stronger contrast while keeping the same pink theme */
+  background:
+    radial-gradient(120% 160% at 10% 0%, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(180deg, rgba(255, 202, 216, 0.42), rgba(255, 145, 178, 0.28));
+  border: 1px solid rgba(255, 220, 230, 0.65);
+  outline: 1px solid rgba(255, 120, 156, 0.35);
+  outline-offset: 0px;
+  border-radius: 14px;
+  padding: 1.5rem;
+  width: min(92vw, 420px);
+  margin: 2rem; /* safe spacing on small screens */
+  max-height: calc(100vh - 4rem); /* avoid overflowing viewport */
+  box-shadow:
+    0 14px 40px rgba(176, 54, 96, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(255, 150, 180, 0.25);
+  backdrop-filter: blur(6px) saturate(135%);
+  -webkit-backdrop-filter: blur(8px) saturate(135%);
+  will-change: backdrop-filter, transform;
+  color: rgba(255,255,255,0.95);
+  background-clip: padding-box; /* keeps border crisp */
+  transition: transform 200ms ease, box-shadow 200ms ease;
+} /* end .glass */
+
+/* subtle glossy highlight */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  /* clearer glossy highlight to separate from background */
+  background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255, 183, 197, 0.06));
+  mix-blend-mode: overlay;
+  opacity: 0.38;
+  clip-path: inset(0 round 14px);
+  z-index: 2; /* sit above blurred background but below content */
+}
+
+/* ensure content sits above highlight */
+.glass > * {
+  position: relative;
+  z-index: 3;
+}
+
+/* hover/focus accent */
+.glass:hover, .glass:focus-within {
+  transform: translateY(-6px);
+  box-shadow:
+    0 22px 55px rgba(176, 54, 96, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(255, 150, 180, 0.3);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+} 
+
+/* fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(8px)) {
+  .glass {
+    /* maintain pink tint even if blur isn't available */
+    background: linear-gradient(180deg, rgba(255,202,216,0.45), rgba(255,145,178,0.28));
+    border: 1px solid rgba(255, 220, 230, 0.65);
+    outline: 1px solid rgba(255, 120, 156, 0.35);
+    box-shadow: 0 16px 42px rgba(176, 54, 96, 0.18);
+    position: relative; /* required for the simulated blur pseudo-element */
+    overflow: hidden; /* clip the simulated blur */
+  }
+
+  /* Simulate background blur by placing a blurred copy of the page background behind the card.
+     Uses a fixed background so it lines up with the actual page background. This improves the
+     visual effect where true backdrop-filter is not available. */
+  .glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0; /* place behind content inside .glass */
+
+    /* copy the body's background and fix it to the viewport so it matches visually */
+    background: linear-gradient(to bottom right, rgb(233, 175, 185), rgb(215, 104, 104));
+    background-attachment: fixed;
+    background-size: cover;
+
+    filter: blur(4.5px) saturate(110%);
+    transform: scale(1.01);
+    pointer-events: none;
+    opacity: 0.55;
+  }
+
+/* make sure content sits above the simulated blur */
+.glass > * { position: relative; z-index: 1; }
+
+  /* make sure content sits above the simulated blur */
+  .glass > * { position: relative; z-index: 1; }
+}
+
+.heart {
+  position: fixed;
+  width: 28px;
+  height: 28px;         /* default size, overridden inline */
+  background: url('/static/img/welcome_pink_heart.png') no-repeat center/contain;
+  pointer-events: none;
+  z-index: 5; /* keep reasonably low so it sits under the glass (glass z-index:12) */
+  animation: floatUp 9s linear infinite;
+  opacity: 0; /* fade in from bottom */
+  will-change: transform, left, top, opacity;
+  transition: transform 300ms ease;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));
+}
+@keyframes floatUp {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  15% { opacity: 0.75; }
+  100% { transform: translateY(calc(var(--travel) * -1)) rotate(360deg); opacity: 0; }
+}

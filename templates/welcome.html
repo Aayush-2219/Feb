@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heyyy!!</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/welcome.css') }}">
+</head>
+<body>
+
+  <div class="glass">
+    <h2 class="heydudie">Heyy My Lovee!</h2>
+    <h3>My Dudie Pie</h3>
+    <p class="dudie">I just wanted to say that I love you so much and I'm really grateful to have you in my life. You make me so happy and I can't imagine my life without you. I hope we can spend many more wonderful moments together. <br> I always love you Mrs. Snoww.<br>A Happy Valentine's Day to you yrrr, hamko pata hai ye sab nai psnd aapko, but fir bhi dudiee piee.. meri jaan. <br>I wish I could write more dudie, but days today are being busy, with studies and all stuffss... you know na dudie. Just wanted to say that, you complete me dudie. I love you... ALWAYS my panda</p>
+  </div>
+    
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Place hearts without overlap by using bounding boxes
+    const count = 25; // keep this modest for guaranteed spacing
+    const minGap = 10; // px gap between hearts
+    const maxAttempts = 220;
+    const placed = []; // store bounding boxes
+
+    function overlaps(box) {
+      for (const p of placed) {
+        const noOverlap =
+          box.right + minGap <= p.left ||
+          box.left - minGap >= p.right ||
+          box.bottom + minGap <= p.top ||
+          box.top - minGap >= p.bottom;
+        if (!noOverlap) return true;
+      }
+      return false;
+    }
+
+    function tryPlace(size) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const maxX = Math.max(0, w - size);
+      const maxY = Math.max(0, h - size);
+
+      for (let i = 0; i < maxAttempts; i++) {
+        const x = Math.random() * maxX;
+        const y = Math.random() * maxY;
+        const box = { left: x, top: y, right: x + size, bottom: y + size };
+        if (!overlaps(box)) return box;
+      }
+      return null;
+    }
+
+    for (let i = 0; i < count; i++) {
+      const size = 18 + Math.random() * 26; // 18 - 44px
+      const box = tryPlace(size);
+      if (!box) break; // stop if we can't place without overlap
+
+      placed.push(box);
+
+      const hEl = document.createElement('div');
+      hEl.className = 'heart';
+      hEl.style.width = size + 'px';
+      hEl.style.height = size + 'px';
+      hEl.style.left = box.left + 'px';
+      // start just below the viewport so it rises into view
+      const startY = window.innerHeight + Math.random() * 200;
+      hEl.style.top = startY + 'px';
+      // travel distance: from startY to above the top
+      hEl.style.setProperty('--travel', (startY + size + 140) + 'px');
+      // desync so the stream looks continuous (no clusters)
+      const duration = 14 + Math.random() * 8; // seconds
+      hEl.style.animationDuration = duration + 's';
+      hEl.style.animationDelay = (-Math.random() * duration) + 's';
+      hEl.style.transform = `scale(${0.85 + Math.random() * 0.5})`;
+
+      document.body.appendChild(hEl);
+    }
+
+    // Re-layout on resize so hearts stay well-distributed
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => location.reload(), 250);
+    });
+  });
+</script>
+</body>
+</html>
